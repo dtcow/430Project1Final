@@ -48,11 +48,11 @@ public class Transaction {
     }
 
 
-    public void addProductToTransaction(double totalCost, String productID, int quantity) {
-        this.totalCost += totalCost;
-        ProductBought currentProductBought = new ProductBought(productID, quantity);
-        productIDs.add(currentProductBought);
-    }
+public void addProductToTransaction(double unitPrice, String productID, int quantity) {
+    this.totalCost += unitPrice * quantity;
+    ProductBought currentProductBought = new ProductBought(productID, quantity);
+    productIDs.add(currentProductBought);
+}
 
     @Override
     public String toString() {

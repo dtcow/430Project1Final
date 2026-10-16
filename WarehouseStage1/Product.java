@@ -71,20 +71,51 @@ public class Product {
     }
 
     public void distributeProduct() {
-        for (Waitlisted waitlisted : waitlist) {
-            if (waitlisted.quantity <= quantity) {
-                removeQuantity(waitlisted.quantity);
-                //Order For Client
-            }
-            else {
-                System.out.println("Waitlist Unfufilled");
-                System.out.println("New Waitlist: ");
-                viewWaitlist();
-                return;
-            }
+    while (!waitlist.isEmpty() && quantity > 0) {
+        Waitlisted request = waitlist.peek();
+
+        int fulfilledQuantity = Math.min(
+            request.quantity(),
+            quantity
+        );
+
+        Client client = request.client();
+
+        Transaction transaction =
+            new Transaction(client.getID());
+
+        transaction.addProductToTransaction(
+            salePrice,
+            productID,
+            fulfilledQuantity
+        );
+
+        removeQuantity(fulfilledQuantity);
+
+        client.addTransaction(transaction);
+        client.charge(transaction.getTotalCost());
+
+        System.out.println(transaction);
+
+        waitlist.remove();
+
+        int remainingQuantity =
+            request.quantity() - fulfilledQuantity;
+
+        if (remainingQuantity > 0) {
+            ((LinkedList<Waitlisted>) waitlist).addFirst(
+                new Waitlisted(client, remainingQuantity)
+            );
         }
-        System.out.println("Waitlist Fufilled");
     }
+
+    if (waitlist.isEmpty()) {
+        System.out.println("Waitlist fulfilled.");
+    } else {
+        System.out.println("Some requests are still waiting.");
+        viewWaitlist();
+    }
+}
 
     @Override
     public String toString() {
